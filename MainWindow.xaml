@@ -1,0 +1,165 @@
+﻿<Window x:Class="GraphicModelling.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Панель управління -->
+        <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="10">
+                <TextBlock Text="Geometric Model Designer" FontSize="16" FontWeight="Bold" Margin="0,0,0,20"/>
+
+                <!-- Додавання відрізка -->
+                <GroupBox Header="Додати відрізок" Margin="0,0,0,15">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Початкова точка:" Margin="0,5"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="Кінцева точка:" Margin="0,5"/>
+
+                            <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal">
+                                <TextBlock Text="X:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                <TextBox x:Name="StartXTextBox" Width="50" Margin="0,0,10,0" Text="0"/>
+                                <TextBlock Text="Y:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                <TextBox x:Name="StartYTextBox" Width="50" Text="0"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal">
+                                <TextBlock Text="X:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                <TextBox x:Name="EndXTextBox" Width="50" Margin="0,0,10,0" Text="100"/>
+                                <TextBlock Text="Y:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                <TextBox x:Name="EndYTextBox" Width="50" Text="100"/>
+                            </StackPanel>
+
+                            <Button Grid.Row="2" Grid.ColumnSpan="2" Content="Додати відрізок" 
+                                    Click="AddLineButton_Click" Margin="0,10,0,0"/>
+                        </Grid>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- Список відрізків -->
+                <GroupBox Header="Відрізки" Margin="0,0,0,15">
+                    <StackPanel>
+                        <ListBox ItemsSource="{Binding LineSegments}" Height="120">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock>
+                                        <Run Text="("/>
+                                        <Run Text="{Binding StartPoint.X, StringFormat=F1}"/>
+                                        <Run Text=", "/>
+                                        <Run Text="{Binding StartPoint.Y, StringFormat=F1}"/>
+                                        <Run Text=") → ("/>
+                                        <Run Text="{Binding EndPoint.X, StringFormat=F1}"/>
+                                        <Run Text=", "/>
+                                        <Run Text="{Binding EndPoint.Y, StringFormat=F1}"/>
+                                        <Run Text=")"/>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <Button Content="Очистити все" Name="ClearAll" Click="ClearAll_Click" Margin="0,5,0,0"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- Трансформації -->
+                <GroupBox Header="Трансформації" Margin="0,0,0,15">
+                    <StackPanel>
+                        <!-- Переміщення -->
+                        <TextBlock Text="Переміщення:" FontWeight="Bold" Margin="0,5,0,0"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock Text="X:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <TextBox Name="tb_translateX" 
+                                     Width="60" Margin="0,0,10,0"/>
+                            <TextBlock Text="Y:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <TextBox Name="tb_translateY"
+                                     Width="60"/>
+                        </StackPanel>
+                        <Button Content="Перемістити" Name="Translate" Click="Translate_Click" Margin="0,0,0,10"/>
+
+                        <!-- Масштабування -->
+                        <TextBlock Text="Масштабування:" FontWeight="Bold" Margin="0,5,0,0"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock Text="X:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <TextBox Name="tb_scaleX"
+                                     Width="60" Margin="0,0,10,0"/>
+                            <TextBlock Text="Y:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <TextBox Name="tb_scaleY"
+                                     Width="60"/>
+                        </StackPanel>
+                        <Button Content="Масштабувати" Name="Scale" Click="Scale_Click" Margin="0,0,0,10"/>
+
+                        <!-- Поворот -->
+                        <TextBlock Text="Поворот:" FontWeight="Bold" Margin="0,5,0,0"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock Text="Кут (°):" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <TextBox Name="tb_rotationAngle"
+                                     Width="80"/>
+                        </StackPanel>
+                        <Button Content="Повернути" Name="Rotate" Click="Rotate_Click" Margin="0,0,0,10"/>
+
+                        <!-- Зсув (Shear) -->
+                        <TextBlock Text="Афінний зсув:" FontWeight="Bold" Margin="0,5,0,0"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock Text="X:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <TextBox Name="tb_shearX"
+                                     Width="60" Margin="0,0,10,0"/>
+                            <TextBlock Text="Y:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <TextBox Name="tb_shearY"
+                                     Width="60"/>
+                        </StackPanel>
+                        <Button Content="Застосувати зсув" Name="Shear" Click="Shear_Click" Margin="0,0,0,10"/>
+
+                        <!-- Проективна трансформація -->
+                        <TextBlock Text="Проективна трансформація:" FontWeight="Bold" Margin="0,5,0,0"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock Text="Фактор:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <TextBox Name="tb_projectionFactor"
+                                     Width="80"/>
+                        </StackPanel>
+                        <Button Content="Застосувати проекцію" Name="Project" Click="Project_Click" Margin="0,0,0,10"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- Інструкції -->
+                <GroupBox Header="Інструкції">
+                    <TextBlock TextWrapping="Wrap" FontSize="10">
+                        • Додавайте відрізки, вказуючи координати початкової та кінцевої точки
+                        <LineBreak/>
+                        • Використовуйте трансформації для зміни всього малюнка
+                        <LineBreak/>
+                        • Переміщення: зсув на вказані значення
+                        <LineBreak/>
+                        • Масштабування: множення на коефіцієнти
+                        <LineBreak/>
+                        • Поворот: навколо центру фігури
+                        <LineBreak/>
+                        • Афінний зсув: деформація фігури
+                        <LineBreak/>
+                        • Проекція: перспективне скорочення
+                    </TextBlock>
+                </GroupBox>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Координатна площина -->
+        <Border Grid.Column="1" BorderBrush="Gray" BorderThickness="1" Margin="10">
+            <Canvas x:Name="CoordinatePlane" Background="White" SizeChanged="CoordinatePlane_SizeChanged"/>
+        </Border>
+    </Grid>
+</Window>
