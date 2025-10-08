@@ -4,162 +4,122 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
+        xmlns:local ="clr-namespace:GraphicModelling.ViewModels" 
+        xmlns:local1="clr-namespace:GraphicModelling.Converters"
         Title="MainWindow" Height="450" Width="800">
+    <Window.Resources>
+        <local1:CenterConverter x:Key="CenterConverter"/>
+    </Window.Resources>
+    <Window.DataContext>
+        <local:MainViewModel/>
+    </Window.DataContext>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="300"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="1*"/>
         </Grid.ColumnDefinitions>
 
-        <!-- Панель управління -->
-        <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto">
-            <StackPanel Margin="10">
-                <TextBlock Text="Geometric Model Designer" FontSize="16" FontWeight="Bold" Margin="0,0,0,20"/>
+        <Border Grid.Column="0" BorderBrush="Gray" BorderThickness="1" Margin="10">
+            <Canvas ClipToBounds="True">
+                <Path Stroke="LightGray" StrokeThickness="0.5">
+                    <Path.Data>
+                        <GeometryGroup>
+                            <GeometryGroup x:Name="GridLinesX"/>
+                            <GeometryGroup x:Name="GridLinesY"/>
+                        </GeometryGroup>
+                    </Path.Data>
+                </Path>
 
-                <!-- Додавання відрізка -->
-                <GroupBox Header="Додати відрізок" Margin="0,0,0,15">
+                <ItemsControl ItemsSource="{Binding Segments}" RenderTransform="{Binding Transform}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Canvas/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Line X1="{Binding StartPoint.X}" Y1="{Binding StartPoint.Y}"
+                                  X2="{Binding EndPoint.X}" Y2="{Binding EndPoint.Y}"
+                                  Stroke="Black" StrokeThickness="2"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <Ellipse Fill="Gold" Width="10" Height="10" 
+                         Canvas.Left="{Binding RotationCenter.X, Converter={StaticResource CenterConverter}, ConverterParameter=10}"
+                         Canvas.Top="{Binding RotationCenter.Y, Converter={StaticResource CenterConverter}, ConverterParameter=10}"/>
+            </Canvas>
+        </Border>
+
+        <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="10">
+                <GroupBox Header="Керування фігурою">
                     <StackPanel>
+                        <ListBox ItemsSource="{Binding Segments}"
+                                 SelectedItem="{Binding SelectedSegment, Mode=TwoWay}"
+                                 MaxHeight="100"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5">
+                            <Button Content="Додати" Command="{Binding AddSegmentCommand}" Margin="5"/>
+                            <Button Content="Видалити" Command="{Binding RemoveSegmentCommand}" Margin="5"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5">
+                            <Button Content="Зберегти" Command="{Binding SaveCommand}" Margin="5"/>
+                            <Button Content="Завантажити" Command="{Binding LoadCommand}" Margin="5"/>
+                        </StackPanel>
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Header="Euclidean Transformation">
+                    <StackPanel>
+                        <TextBlock Text="Кут обертання:"/>
+                        <Slider Minimum="0" Maximum="360" Value="{Binding Angle, Mode=TwoWay}" TickFrequency="1"/>
+                        <TextBlock Text="{Binding Angle, StringFormat='{}{0:F0}°'}"/>
+
+                        <TextBlock Text="Центр обертання (X, Y):"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
                             </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-
-                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Початкова точка:" Margin="0,5"/>
-                            <TextBlock Grid.Row="0" Grid.Column="1" Text="Кінцева точка:" Margin="0,5"/>
-
-                            <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal">
-                                <TextBlock Text="X:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                                <TextBox x:Name="StartXTextBox" Width="50" Margin="0,0,10,0" Text="0"/>
-                                <TextBlock Text="Y:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                                <TextBox x:Name="StartYTextBox" Width="50" Text="0"/>
-                            </StackPanel>
-
-                            <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal">
-                                <TextBlock Text="X:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                                <TextBox x:Name="EndXTextBox" Width="50" Margin="0,0,10,0" Text="100"/>
-                                <TextBlock Text="Y:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                                <TextBox x:Name="EndYTextBox" Width="50" Text="100"/>
-                            </StackPanel>
-
-                            <Button Grid.Row="2" Grid.ColumnSpan="2" Content="Додати відрізок" 
-                                    Click="AddLineButton_Click" Margin="0,10,0,0"/>
+                            <TextBox Grid.Column="0" Text="{Binding RotationCenter.X}" Margin="2"/>
+                            <TextBox Grid.Column="1" Text="{Binding RotationCenter.Y}" Margin="2"/>
                         </Grid>
                     </StackPanel>
                 </GroupBox>
 
-                <!-- Список відрізків -->
-                <GroupBox Header="Відрізки" Margin="0,0,0,15">
+                <GroupBox Header="Transformation Type">
                     <StackPanel>
-                        <ListBox ItemsSource="{Binding LineSegments}" Height="120">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock>
-                                        <Run Text="("/>
-                                        <Run Text="{Binding StartPoint.X, StringFormat=F1}"/>
-                                        <Run Text=", "/>
-                                        <Run Text="{Binding StartPoint.Y, StringFormat=F1}"/>
-                                        <Run Text=") → ("/>
-                                        <Run Text="{Binding EndPoint.X, StringFormat=F1}"/>
-                                        <Run Text=", "/>
-                                        <Run Text="{Binding EndPoint.Y, StringFormat=F1}"/>
-                                        <Run Text=")"/>
-                                    </TextBlock>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                        <Button Content="Очистити все" Name="ClearAll" Click="ClearAll_Click" Margin="0,5,0,0"/>
+                        <CheckBox Content="Affine" IsChecked="{Binding IsAffine}"/>
+                        <CheckBox Content="Projective (UI Only)" IsChecked="{Binding IsProjective}"/>
                     </StackPanel>
                 </GroupBox>
 
-                <!-- Трансформації -->
-                <GroupBox Header="Трансформації" Margin="0,0,0,15">
-                    <StackPanel>
-                        <!-- Переміщення -->
-                        <TextBlock Text="Переміщення:" FontWeight="Bold" Margin="0,5,0,0"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,5">
-                            <TextBlock Text="X:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                            <TextBox Name="tb_translateX" 
-                                     Width="60" Margin="0,0,10,0"/>
-                            <TextBlock Text="Y:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                            <TextBox Name="tb_translateY"
-                                     Width="60"/>
-                        </StackPanel>
-                        <Button Content="Перемістити" Name="Translate" Click="Translate_Click" Margin="0,0,0,10"/>
+                <GroupBox Header="Affine/Projective Parameters" IsEnabled="{Binding IsAffine}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
 
-                        <!-- Масштабування -->
-                        <TextBlock Text="Масштабування:" FontWeight="Bold" Margin="0,5,0,0"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,5">
-                            <TextBlock Text="X:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                            <TextBox Name="tb_scaleX"
-                                     Width="60" Margin="0,0,10,0"/>
-                            <TextBlock Text="Y:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                            <TextBox Name="tb_scaleY"
-                                     Width="60"/>
-                        </StackPanel>
-                        <Button Content="Масштабувати" Name="Scale" Click="Scale_Click" Margin="0,0,0,10"/>
-
-                        <!-- Поворот -->
-                        <TextBlock Text="Поворот:" FontWeight="Bold" Margin="0,5,0,0"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,5">
-                            <TextBlock Text="Кут (°):" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                            <TextBox Name="tb_rotationAngle"
-                                     Width="80"/>
-                        </StackPanel>
-                        <Button Content="Повернути" Name="Rotate" Click="Rotate_Click" Margin="0,0,0,10"/>
-
-                        <!-- Зсув (Shear) -->
-                        <TextBlock Text="Афінний зсув:" FontWeight="Bold" Margin="0,5,0,0"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,5">
-                            <TextBlock Text="X:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                            <TextBox Name="tb_shearX"
-                                     Width="60" Margin="0,0,10,0"/>
-                            <TextBlock Text="Y:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                            <TextBox Name="tb_shearY"
-                                     Width="60"/>
-                        </StackPanel>
-                        <Button Content="Застосувати зсув" Name="Shear" Click="Shear_Click" Margin="0,0,0,10"/>
-
-                        <!-- Проективна трансформація -->
-                        <TextBlock Text="Проективна трансформація:" FontWeight="Bold" Margin="0,5,0,0"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,5">
-                            <TextBlock Text="Фактор:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                            <TextBox Name="tb_projectionFactor"
-                                     Width="80"/>
-                        </StackPanel>
-                        <Button Content="Застосувати проекцію" Name="Project" Click="Project_Click" Margin="0,0,0,10"/>
-                    </StackPanel>
+                        <TextBox Grid.Row="0" Grid.Column="0" Text="{Binding M11}" Margin="2"/>
+                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding M12}" Margin="2"/>
+                        <TextBox Grid.Row="1" Grid.Column="0" Text="{Binding M21}" Margin="2"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding M22}" Margin="2"/>
+                        <TextBox Grid.Row="2" Grid.Column="0" Text="{Binding OffsetX}" Margin="2"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding OffsetY}" Margin="2"/>
+                        <TextBox Grid.Row="3" Grid.Column="0" Text="{Binding M31}" Margin="2" IsEnabled="{Binding IsProjective}"/>
+                        <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding M32}" Margin="2" IsEnabled="{Binding IsProjective}"/>
+                    </Grid>
                 </GroupBox>
 
-                <!-- Інструкції -->
-                <GroupBox Header="Інструкції">
-                    <TextBlock TextWrapping="Wrap" FontSize="10">
-                        • Додавайте відрізки, вказуючи координати початкової та кінцевої точки
-                        <LineBreak/>
-                        • Використовуйте трансформації для зміни всього малюнка
-                        <LineBreak/>
-                        • Переміщення: зсув на вказані значення
-                        <LineBreak/>
-                        • Масштабування: множення на коефіцієнти
-                        <LineBreak/>
-                        • Поворот: навколо центру фігури
-                        <LineBreak/>
-                        • Афінний зсув: деформація фігури
-                        <LineBreak/>
-                        • Проекція: перспективне скорочення
-                    </TextBlock>
-                </GroupBox>
+                <Button Content="Скинути трансформації" Command="{Binding ResetTransformCommand}" Margin="0,10,0,0"/>
             </StackPanel>
         </ScrollViewer>
-
-        <!-- Координатна площина -->
-        <Border Grid.Column="1" BorderBrush="Gray" BorderThickness="1" Margin="10">
-            <Canvas x:Name="CoordinatePlane" Background="White" SizeChanged="CoordinatePlane_SizeChanged"/>
-        </Border>
     </Grid>
 </Window>
