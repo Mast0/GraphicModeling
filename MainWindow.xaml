@@ -20,17 +20,9 @@
         </Grid.ColumnDefinitions>
 
         <Border Grid.Column="0" BorderBrush="Gray" BorderThickness="1" Margin="10">
-            <Canvas ClipToBounds="True">
-                <Path Stroke="LightGray" StrokeThickness="0.5">
-                    <Path.Data>
-                        <GeometryGroup>
-                            <GeometryGroup x:Name="GridLinesX"/>
-                            <GeometryGroup x:Name="GridLinesY"/>
-                        </GeometryGroup>
-                    </Path.Data>
-                </Path>
+            <Canvas ClipToBounds="True" Background="White">
 
-                <ItemsControl ItemsSource="{Binding Segments}" RenderTransform="{Binding Transform}">
+                <ItemsControl ItemsSource="{Binding TransformedGridLines}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <Canvas/>
@@ -40,24 +32,60 @@
                         <DataTemplate>
                             <Line X1="{Binding StartPoint.X}" Y1="{Binding StartPoint.Y}"
                                   X2="{Binding EndPoint.X}" Y2="{Binding EndPoint.Y}"
-                                  Stroke="Black" StrokeThickness="2"/>
+                                  Stroke="LightGray" StrokeThickness="0.5"/>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
-                <Ellipse Fill="Gold" Width="10" Height="10" 
-                         Canvas.Left="{Binding RotationCenter.X, Converter={StaticResource CenterConverter}, ConverterParameter=10}"
-                         Canvas.Top="{Binding RotationCenter.Y, Converter={StaticResource CenterConverter}, ConverterParameter=10}"/>
+                <Line X1="{Binding TransformedAxisX.StartPoint.X}" Y1="{Binding TransformedAxisX.StartPoint.Y}"
+                      X2="{Binding TransformedAxisX.EndPoint.X}" Y2="{Binding TransformedAxisX.EndPoint.Y}"
+                      Stroke="Red" StrokeThickness="1.5"/>
+                <Line X1="{Binding TransformedAxisY.StartPoint.X}" Y1="{Binding TransformedAxisY.StartPoint.Y}"
+                      X2="{Binding TransformedAxisY.EndPoint.X}" Y2="{Binding TransformedAxisY.EndPoint.Y}"
+                      Stroke="Green" StrokeThickness="1.5"/>
+
+                <ItemsControl ItemsSource="{Binding TransformedSegments}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Canvas/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Line X1="{Binding StartPoint.X}" Y1="{Binding StartPoint.Y}"
+                                  X2="{Binding EndPoint.X}" Y2="{Binding EndPoint.Y}"
+                                  Stroke="Black" StrokeThickness="2.5"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <Ellipse Fill="Gold" Stroke="Black" StrokeThickness="1" Width="10" Height="10"
+                         Canvas.Left="{Binding RotationCenterX, Converter={StaticResource CenterConverter}, ConverterParameter=10}"
+                         Canvas.Top="{Binding RotationCenterY, Converter={StaticResource CenterConverter}, ConverterParameter=10}"/>
             </Canvas>
         </Border>
 
-        <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.ColumnSpan="2" Margin="533,0,0,0">
             <StackPanel Margin="10">
                 <GroupBox Header="Керування фігурою">
                     <StackPanel>
-                        <ListBox ItemsSource="{Binding Segments}"
-                                 SelectedItem="{Binding SelectedSegment, Mode=TwoWay}"
-                                 MaxHeight="100"/>
+                        <ListBox ItemsSource="{Binding OriginalSegments}"
+                         SelectedItem="{Binding SelectedSegment, Mode=TwoWay}"
+                         MaxHeight="100"/>
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                            <TextBlock Text="Вибраний відрізок перша точка (X, Y):"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBox Text="{Binding SelectedSegmentStartX}" Width="50" Margin="5"/>
+                                <TextBox Text="{Binding SelectedSegmentStartY}" Width="50" Margin="5"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,5">
+                            <TextBlock Text="Вибраний відрізок друга точка (X, Y):"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBox Text="{Binding SelectedSegmentEndX}" Width="50" Margin="5"/>
+                                <TextBox Text="{Binding SelectedSegmentEndY}" Width="50" Margin="5"/>
+                            </StackPanel>
+                        </StackPanel>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5">
                             <Button Content="Додати" Command="{Binding AddSegmentCommand}" Margin="5"/>
                             <Button Content="Видалити" Command="{Binding RemoveSegmentCommand}" Margin="5"/>
@@ -81,8 +109,8 @@
                                 <ColumnDefinition/>
                                 <ColumnDefinition/>
                             </Grid.ColumnDefinitions>
-                            <TextBox Grid.Column="0" Text="{Binding RotationCenter.X}" Margin="2"/>
-                            <TextBox Grid.Column="1" Text="{Binding RotationCenter.Y}" Margin="2"/>
+                            <TextBox Grid.Column="0" Text="{Binding RotationCenterX}" Margin="2"/>
+                            <TextBox Grid.Column="1" Text="{Binding RotationCenterY}" Margin="2"/>
                         </Grid>
                     </StackPanel>
                 </GroupBox>
@@ -90,7 +118,7 @@
                 <GroupBox Header="Transformation Type">
                     <StackPanel>
                         <CheckBox Content="Affine" IsChecked="{Binding IsAffine}"/>
-                        <CheckBox Content="Projective (UI Only)" IsChecked="{Binding IsProjective}"/>
+                        <CheckBox Content="Projective" IsChecked="{Binding IsProjective}"/>
                     </StackPanel>
                 </GroupBox>
 
@@ -107,14 +135,17 @@
                             <RowDefinition/>
                         </Grid.RowDefinitions>
 
-                        <TextBox Grid.Row="0" Grid.Column="0" Text="{Binding M11}" Margin="2"/>
-                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding M12}" Margin="2"/>
-                        <TextBox Grid.Row="1" Grid.Column="0" Text="{Binding M21}" Margin="2"/>
-                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding M22}" Margin="2"/>
-                        <TextBox Grid.Row="2" Grid.Column="0" Text="{Binding OffsetX}" Margin="2"/>
-                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding OffsetY}" Margin="2"/>
-                        <TextBox Grid.Row="3" Grid.Column="0" Text="{Binding M31}" Margin="2" IsEnabled="{Binding IsProjective}"/>
-                        <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding M32}" Margin="2" IsEnabled="{Binding IsProjective}"/>
+                        <TextBox Grid.Row="0" Grid.Column="0" Text="{Binding M00}" Margin="2"/>
+                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding M01}" Margin="2"/>
+
+                        <TextBox Grid.Row="1" Grid.Column="0" Text="{Binding M10}" Margin="2"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding M11}" Margin="2"/>
+
+                        <TextBox Grid.Row="2" Grid.Column="0" Text="{Binding M20}" Margin="2"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding M21}" Margin="2"/>
+
+                        <TextBox Grid.Row="3" Grid.Column="0" Text="{Binding M02}" Margin="2" IsEnabled="{Binding IsProjective}"/>
+                        <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding M12}" Margin="2" IsEnabled="{Binding IsProjective}"/>
                     </Grid>
                 </GroupBox>
 
