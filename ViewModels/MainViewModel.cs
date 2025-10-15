@@ -17,14 +17,8 @@ public class MainViewModel : INotifyPropertyChanged
 {
     private ObservableCollection<Segment> _originalSegments;
     private readonly List<Segment> _originalGridLines = new List<Segment>();
-    private readonly Segment _originalAxisX;
-    private readonly Segment _originalAxisY;
-
-    public ObservableCollection<Segment> OriginalSegments
-    {
-        get => _originalSegments;
-        set { _originalSegments = value; OnPropertyChanged(); }
-    }
+    //private Segment _originalAxisX;
+    //private Segment _originalAxisY;
 
     public ObservableCollection<Segment> TransformedSegments { get; set; }
     public ObservableCollection<Segment> TransformedGridLines { get; set; }
@@ -43,87 +37,6 @@ public class MainViewModel : INotifyPropertyChanged
         set { _transformedAxisY = value; OnPropertyChanged(); }
     }
 
-    #region SelectedSegment
-    private Segment _selectedSegment;
-    public Segment SelectedSegment
-    {
-        get => _selectedSegment;
-        set { _selectedSegment = value; OnPropertyChanged(); }
-    }
-
-    public double SelectedSegmentStartX
-    {
-        get 
-        { 
-            if (_selectedSegment != null)
-                return _selectedSegment.StartPoint.X;
-            return 0;
-        }
-        set 
-        { 
-            var newPoint = _selectedSegment.StartPoint;
-            newPoint.X = value;
-            _selectedSegment.StartPoint = newPoint;
-            OnPropertyChanged(); 
-            UpdateAndApplyTransforms(); 
-        }
-    }
-
-    public double SelectedSegmentStartY
-    {
-        get
-        {
-            if (_selectedSegment != null)
-                return _selectedSegment.StartPoint.Y;
-            return 0;
-        }
-        set
-        {
-            var newPoint = _selectedSegment.StartPoint;
-            newPoint.Y = value;
-            _selectedSegment.StartPoint = newPoint;
-            OnPropertyChanged();
-            UpdateAndApplyTransforms();
-        }
-    }
-
-    public double SelectedSegmentEndX
-    {
-        get
-        {
-            if (_selectedSegment != null)
-                return _selectedSegment.EndPoint.X;
-            return 0;
-        }
-        set
-        {
-            var newPoint = _selectedSegment.EndPoint;
-            newPoint.X = value;
-            _selectedSegment.EndPoint = newPoint;
-            OnPropertyChanged();
-            UpdateAndApplyTransforms();
-        }
-    }
-
-    public double SelectedSegmentEndY
-    {
-        get
-        {
-            if (_selectedSegment != null)
-                return _selectedSegment.EndPoint.Y;
-            return 0;
-        }
-        set
-        {
-            var newPoint = _selectedSegment.EndPoint;
-            newPoint.Y = value;
-            _selectedSegment.EndPoint = newPoint;
-            OnPropertyChanged();
-            UpdateAndApplyTransforms();
-        }
-    }
-    #endregion
-
     #region Transformation props
     private double _angle;
     public double Angle
@@ -132,26 +45,17 @@ public class MainViewModel : INotifyPropertyChanged
         set { _angle = value; OnPropertyChanged(); UpdateAndApplyTransforms(); }
     }
 
-    #region RotationCenter
-    private Point _rotationCenter = new Point(150, 150);
+    private Point _rotationCenter = new Point(15, 15);
     public Point RotationCenter
     {
         get => _rotationCenter;
-        set { _rotationCenter = value; OnPropertyChanged(); UpdateAndApplyTransforms(); }
+        set 
+        { 
+            _rotationCenter = value; 
+            OnPropertyChanged();
+            UpdateAndApplyTransforms(); 
+        }
     }
-
-    public double RotationCenterX
-    {
-        get => _rotationCenter.X;
-        set { _rotationCenter.X = value; OnPropertyChanged(); UpdateAndApplyTransforms(); }
-    }
-
-    public double RotationCenterY
-    {
-        get => _rotationCenter.Y;
-        set { _rotationCenter.Y = value; OnPropertyChanged(); UpdateAndApplyTransforms(); }
-    }
-    #endregion
 
     // Матричні параметри для афінної трансформації
     private double _m00 = 1, _m01 = 0, _m10 = 0, _m11 = 1, _m20 = 0, _m21 = 0;
@@ -182,11 +86,7 @@ public class MainViewModel : INotifyPropertyChanged
     #endregion
 
     #region Commands
-    public ICommand AddSegmentCommand { get; }
-    public ICommand RemoveSegmentCommand { get; }
     public ICommand ResetTransformCommand { get; }
-    public ICommand SaveCommand { get; }
-    public ICommand LoadCommand { get; }
     #endregion
 
     public MainViewModel()
@@ -194,17 +94,20 @@ public class MainViewModel : INotifyPropertyChanged
         TransformedSegments = new ObservableCollection<Segment>();
         TransformedGridLines = new ObservableCollection<Segment>();
 
-        CreateOriginalShape();
-        _originalAxisX = new Segment(new Point(0, 300), new Point(600, 300));
-        _originalAxisY = new Segment(new Point(300, 0), new Point(300, 600));
-        CreateOriginalGrid(600, 600, 20);
-
-        AddSegmentCommand = new MainViewModelCommand(AddSegment);
-        RemoveSegmentCommand = new MainViewModelCommand(RemoveSegment, CanRemoveSegment);
+        CreateModel();
+        //CreateOriginalShape();
+        //_originalAxisX = new Segment(new Point(0, 0), new Point(0, 600));
+        //_originalAxisY = new Segment(new Point(0, 0), new Point(600, 0));
         ResetTransformCommand = new MainViewModelCommand(ResetTransform);
-        SaveCommand = new MainViewModelCommand(SaveToFile);
-        LoadCommand = new MainViewModelCommand(LoadFromFile);
 
+        UpdateAndApplyTransforms();
+    }
+
+    public void UpdateCanvasSize(double width, double height)
+    {
+        //_originalAxisX = new Segment(new Point(0, 0), new Point(0, width));
+        //_originalAxisY = new Segment(new Point(0, 0), new Point(height, 0));
+        CreateOriginalGrid(width, height, 35);
         UpdateAndApplyTransforms();
     }
 
@@ -212,14 +115,32 @@ public class MainViewModel : INotifyPropertyChanged
     {
         _originalSegments = new ObservableCollection<Segment>
         {
-            new Segment(new Point(100, 100), new Point(200, 100)),
-            new Segment(new Point(200, 100), new Point(200, 200)),
-            new Segment(new Point(200, 200), new Point(100, 200)),
-            new Segment(new Point(100, 200), new Point(100, 100))
+            new Segment(1, 1, 2, 1),
+            new Segment(2, 1, 2, 2, 60, false),
+            new Segment(2, 2, 1, 2),
+            new Segment(1, 2, 1, 1)
         };
     }
 
-    private void CreateOriginalGrid(int width, int height, int step)
+    private void CreateModel()
+    {
+        _originalSegments = new ObservableCollection<Segment>
+        {
+            new Segment(2, 15, 7, 15),
+            new Segment(7, 16, 7, 4),
+            new Segment(2, 10, 2, 15),
+            new Segment(2, 10, 4.1, 10),
+            new Segment(4.1, 10, 7, 8),
+            new Segment(7, 16, 9, 16),
+            new Segment(9, 16, 9, 3.8),
+            new Segment(9, 3.8, 8, 3.8),
+            new Segment(8, 3.8, 8, 4),
+            new Segment(8, 4, 7, 4),
+            //new Segment(4.1, 12.5, 5.2, 12.5, 180)
+        };
+    }
+
+    private void CreateOriginalGrid(double width, double height, int step)
     {
         _originalGridLines.Clear();
         for (int x = 0; x <= width; x += step)
@@ -258,11 +179,26 @@ public class MainViewModel : INotifyPropertyChanged
         TransformedSegments.Clear();
         foreach (var orSeg in _originalSegments)
         {
-            Point newStart = TransformationHelper.ApplyTransformations(
-                orSeg.StartPoint, finalMatrix);
-            Point newEnd = TransformationHelper.ApplyTransformations(
-                orSeg.EndPoint, finalMatrix);
-            TransformedSegments.Add(new Segment(newStart, newEnd));
+            // Поточний сегмент дуга?
+            if (orSeg.Radius > 0 && orSeg.StartPoint != orSeg.EndPoint)
+            {
+                // Розбиваємо дугу на набір точок
+                var arcPoints = GeometryHelper.TessellateArc(orSeg);
+
+                // Трансформуємо кожну точку і створюємо з них маленькі прямі відрізки
+                for (int i = 0; i < arcPoints.Count - 1; i++)
+                {
+                    var transformedStart = TransformationHelper.ApplyTransformations(arcPoints[i], finalMatrix);
+                    var transformedEnd = TransformationHelper.ApplyTransformations(arcPoints[i + 1], finalMatrix);
+                    TransformedSegments.Add(new Segment(transformedStart, transformedEnd));
+                }
+            }
+            else
+            {
+                Point newStart = TransformationHelper.ApplyTransformations(orSeg.StartPoint, finalMatrix);
+                Point newEnd = TransformationHelper.ApplyTransformations(orSeg.EndPoint, finalMatrix);
+                TransformedSegments.Add(new Segment(newStart, newEnd));
+            }
         }
 
         Matrix3x3 gridFinalMatrix = BuildTransformationMatrix(false);
@@ -282,38 +218,20 @@ public class MainViewModel : INotifyPropertyChanged
         // -----------------
         // -------Осі-------
         // -----------------
-        Point axisXStart = TransformationHelper.ApplyTransformations(
-                _originalAxisX.StartPoint, gridFinalMatrix);
-        Point axisXEnd = TransformationHelper.ApplyTransformations(
-                _originalAxisX.EndPoint, gridFinalMatrix);
-        TransformedAxisX = new Segment(axisXStart, axisXEnd);
+        //Point axisXStart = TransformationHelper.ApplyTransformations(
+        //        _originalAxisX.StartPoint, gridFinalMatrix);
+        //Point axisXEnd = TransformationHelper.ApplyTransformations(
+        //        _originalAxisX.EndPoint, gridFinalMatrix);
+        //TransformedAxisX = new Segment(axisXStart, axisXEnd);
 
-        Point axisYStart = TransformationHelper.ApplyTransformations(
-                _originalAxisY.StartPoint, gridFinalMatrix);
-        Point axisYEnd = TransformationHelper.ApplyTransformations(
-                _originalAxisY.EndPoint, gridFinalMatrix);
-        TransformedAxisX = new Segment(axisYStart, axisYEnd);
+        //Point axisYStart = TransformationHelper.ApplyTransformations(
+        //        _originalAxisY.StartPoint, gridFinalMatrix);
+        //Point axisYEnd = TransformationHelper.ApplyTransformations(
+        //        _originalAxisY.EndPoint, gridFinalMatrix);
+        //TransformedAxisX = new Segment(axisYStart, axisYEnd);
     }
 
     #region Command Handlers
-    private void AddSegment(object obj)
-    {
-        var newSegment = new Segment(new Point(50, 50), new Point(100, 50));
-        _originalSegments.Add(newSegment);
-        SelectedSegment = newSegment;
-        UpdateAndApplyTransforms();
-    }
-
-    private void RemoveSegment(object obj)
-    {
-        if (SelectedSegment != null)
-        {
-            _originalSegments.Remove(SelectedSegment);
-            UpdateAndApplyTransforms();
-        }
-    }
-
-    private bool CanRemoveSegment(object obj) => SelectedSegment != null;
 
     private void ResetTransform(object obj)
     {
@@ -324,41 +242,6 @@ public class MainViewModel : INotifyPropertyChanged
         M20 = 0; M21 = 0;
         IsAffine = false;
         IsProjective = false;
-    }
-
-    private void SaveToFile(object obj)
-    {
-        var sfd = new SaveFileDialog
-        {
-            Filter = "JSON Files (*.json)|*.json|All files (*.*)|*.*",
-            Title = "Зберегти фігуру"
-        };
-
-        if (sfd.ShowDialog() == true)
-        {
-            var json = JsonConvert.SerializeObject(_originalSegments, Formatting.Indented);
-            File.WriteAllText(sfd.FileName, json);
-        }
-    }
-
-    private void LoadFromFile(object obj)
-    {
-        var ofd = new OpenFileDialog
-        {
-            Filter = "JSON Files (*.json)|*.json|All files (*.*)|*.*",
-            Title = "Завантажити фігуру"
-        };
-
-        if (ofd.ShowDialog() == true)
-        {
-            var json = File.ReadAllText(ofd.FileName);
-            var loadedSegments = JsonConvert.DeserializeObject<ObservableCollection<Segment>>(json);
-            _originalSegments.Clear();
-            foreach (var seg in loadedSegments)
-            {
-                _originalSegments.Add(seg);
-            }
-        }
     }
     #endregion
 
