@@ -4,12 +4,52 @@ using System.Windows;
 
 namespace GraphicModelling.Models;
 
-public class Segment
+public class Segment : INotifyPropertyChanged
 {
-    public Point StartPoint { get; set; }
-    public Point EndPoint { get; set; }
-    public double Radius { get; set; }
+    private Point _startPoint;
+    private Point _endPoint;
+    private double _radius;
+
+    public Point StartPoint 
+    { 
+        get => _startPoint;
+        set { _startPoint = value; OnPropertyChanged(); }
+    }
+    public Point EndPoint 
+    { 
+        get => _endPoint;
+        set { _endPoint = value; OnPropertyChanged(); }
+    }
+    public double Radius 
+    { 
+        get => _radius;
+        set { _radius = value; OnPropertyChanged(); }
+    }
     public bool IsClockwise { get; set; }
+    public double Length
+    {
+        get
+        {
+            return (EndPoint - StartPoint).Length;
+        }
+        set
+        {
+            if (Radius > 0) return;
+
+            Vector v = EndPoint - StartPoint;
+            double currentLength = v.Length;
+
+            if (currentLength == 0) return;
+
+            // Знаходимо одиночний вектор у напрямку сегмента
+            v.Normalize();
+
+            // Обчислюємо новук кінцеву точку рухаючись від початкової
+            Point newEndPoint = StartPoint + v * value;
+
+            EndPoint = newEndPoint;
+        }
+    }
 
     public Segment(Point start, Point end)
     {
@@ -33,5 +73,11 @@ public class Segment
         EndPoint = new Point(endX * 35, endY * 35);
         Radius = radius;
         IsClockwise = isClockwise;
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+    protected void OnPropertyChanged([CallerMemberName] string name = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 }

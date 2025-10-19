@@ -21,6 +21,9 @@ public class MainViewModel : INotifyPropertyChanged
     private ObservableCollection<CircleShape> _originalCircles;
     private readonly ObservableCollection<Segment> _originalGridLines = new ObservableCollection<Segment>();
 
+    public ObservableCollection<Segment> OriginalSegments { get; set; }
+    public ObservableCollection<CircleShape> OriginalCircles { get; set; }
+
     public ObservableCollection<Segment> TransformedSegments { get; set; }
     public ObservableCollection<Segment> TransformedGridLines { get; set; }
 
@@ -92,6 +95,9 @@ public class MainViewModel : INotifyPropertyChanged
 
     public MainViewModel()
     {
+        OriginalSegments = new ObservableCollection<Segment>();
+        OriginalCircles = new ObservableCollection<CircleShape>();
+
         TransformedSegments = new ObservableCollection<Segment>();
         TransformedGridLines = new ObservableCollection<Segment>();
 
@@ -110,7 +116,7 @@ public class MainViewModel : INotifyPropertyChanged
 
     private void CreateOriginalShape()
     {
-        _originalSegments = new ObservableCollection<Segment>
+        OriginalSegments = new ObservableCollection<Segment>
         {
             new Segment(1, 1, 2, 1),
             new Segment(2, 1, 2, 2, 60, false),
@@ -121,7 +127,7 @@ public class MainViewModel : INotifyPropertyChanged
 
     private void CreateModel()
     {
-        _originalSegments = new ObservableCollection<Segment>
+        OriginalSegments = new ObservableCollection<Segment>
         {
             new Segment(2, 15, 7, 15),
             new Segment(7, 16, 7, 4),
@@ -135,10 +141,20 @@ public class MainViewModel : INotifyPropertyChanged
             new Segment(8, 4, 7, 4)
         };
 
-        _originalCircles = new ObservableCollection<CircleShape>
+        foreach (var seg in OriginalSegments)
+        {
+            seg.PropertyChanged += (s, e) => UpdateAndApplyTransforms();
+        }
+
+        OriginalCircles = new ObservableCollection<CircleShape>
         {
             new CircleShape(4.7, 12.5, 0.6)
         };
+
+        foreach (var circle in OriginalCircles)
+        {
+            circle.PropertyChanged += (s, e) => UpdateAndApplyTransforms();
+        }
     }
 
     private void CreateOriginalGrid(double width, double height, int step)
@@ -178,7 +194,7 @@ public class MainViewModel : INotifyPropertyChanged
         // ------Фігура-----
         // -----------------
         TransformedSegments.Clear();
-        foreach (var orSeg in _originalSegments)
+        foreach (var orSeg in OriginalSegments)
         {
             // Поточний сегмент дуга?
             if (orSeg.Radius > 0 && orSeg.StartPoint != orSeg.EndPoint)
@@ -205,7 +221,7 @@ public class MainViewModel : INotifyPropertyChanged
         // -----------------
         // -------Кола------
         // -----------------
-        foreach (var orCircle in _originalCircles)
+        foreach (var orCircle in OriginalCircles)
         {
             List<Point> circlePoints = GeometryHelper.TessellateCircle(orCircle);
 

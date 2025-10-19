@@ -68,51 +68,108 @@
         </Border>
 
         <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" Grid.ColumnSpan="2" Margin="2,0,0,0">
-            <StackPanel Margin="10">
-                <GroupBox Header="Euclidean Transformation">
+            <TabControl>
+                <TabItem Header="Transformations">
                     <StackPanel>
-                        <TextBlock Text="Кут обертання:"/>
-                        <Slider Minimum="0" Maximum="360" Value="{Binding Angle, Mode=TwoWay}" TickFrequency="1"/>
-                        <TextBlock Text="{Binding Angle, StringFormat='{}{0:F0}°'}"/>
-                    </StackPanel>
-                </GroupBox>
+                        <GroupBox Header="Euclidean Transformation">
+                            <StackPanel>
+                                <TextBlock Text="Кут обертання:"/>
+                                <Slider Minimum="0" Maximum="360" Value="{Binding Angle, Mode=TwoWay}" TickFrequency="1"/>
+                                <TextBlock Text="{Binding Angle, StringFormat='{}{0:F0}°'}"/>
+                            </StackPanel>
+                        </GroupBox>
 
-                <GroupBox Header="Transformation Type">
+                        <GroupBox Header="Transformation Type">
+                            <StackPanel>
+                                <CheckBox Content="Affine" IsChecked="{Binding IsAffine}"/>
+                                <CheckBox Content="Projective" IsChecked="{Binding IsProjective}"/>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <GroupBox Header="Affine/Projective Parameters" IsEnabled="{Binding IsAffine}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+
+                                <TextBox Grid.Row="0" Grid.Column="0" Text="{Binding M00}" Margin="2"/>
+                                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding M01}" Margin="2"/>
+
+                                <TextBox Grid.Row="1" Grid.Column="0" Text="{Binding M10}" Margin="2"/>
+                                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding M11}" Margin="2"/>
+
+                                <TextBox Grid.Row="2" Grid.Column="0" Text="{Binding M20}" Margin="2"/>
+                                <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding M21}" Margin="2"/>
+
+                                <TextBox Grid.Row="3" Grid.Column="0" Text="{Binding M02}" Margin="2" IsEnabled="{Binding IsProjective}"/>
+                                <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding M12}" Margin="2" IsEnabled="{Binding IsProjective}"/>
+                            </Grid>
+                        </GroupBox>
+
+                        <Button Content="Скинути трансформації" Command="{Binding ResetTransformCommand}" Margin="0,10,0,0"/>
+                    </StackPanel>
+                </TabItem>
+
+                <TabItem Header="Model Parameters">
                     <StackPanel>
-                        <CheckBox Content="Affine" IsChecked="{Binding IsAffine}"/>
-                        <CheckBox Content="Projective" IsChecked="{Binding IsProjective}"/>
+                        <GroupBox Header="Model Parameters" Margin="0,10,0,0">
+                            <StackPanel>
+                                <TextBlock Text="Segments:" FontWeight="Bold" Margin="0,0,0,5" />
+                                <ItemsControl ItemsSource="{Binding OriginalSegments}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border BorderBrush="LightGray" BorderThickness="0,0,0,1" Padding="0,5">
+                                                <StackPanel>
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Grid.Column="0" Text="Length: " VerticalAlignment="Center"/>
+                                                        <TextBox Grid.Column="1" Text="{Binding Length, UpdateSourceTrigger=PropertyChanged}" Margin="5,0"/>
+                                                    </Grid>
+
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Grid.Column="0" Text="Radius: " VerticalAlignment="Center"/>
+                                                        <TextBox Grid.Column="1" Text="{Binding Radius, UpdateSourceTrigger=PropertyChanged}" Margin="5,0"/>
+                                                    </Grid>
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <TextBlock Text="Circles: " FontWeight="Bold" Margin="0,10,0,5"/>
+                                <ItemsControl ItemsSource="{Binding OriginalCircles}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,2">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0" Text="Radius:" VerticalAlignment="Center"/>
+                                                <TextBox Grid.Column="1" Text="{Binding Radius, UpdateSourceTrigger=PropertyChanged}" Margin="5,0"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </GroupBox>
                     </StackPanel>
-                </GroupBox>
-
-                <GroupBox Header="Affine/Projective Parameters" IsEnabled="{Binding IsAffine}">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                        </Grid.RowDefinitions>
-
-                        <TextBox Grid.Row="0" Grid.Column="0" Text="{Binding M00}" Margin="2"/>
-                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding M01}" Margin="2"/>
-
-                        <TextBox Grid.Row="1" Grid.Column="0" Text="{Binding M10}" Margin="2"/>
-                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding M11}" Margin="2"/>
-
-                        <TextBox Grid.Row="2" Grid.Column="0" Text="{Binding M20}" Margin="2"/>
-                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding M21}" Margin="2"/>
-
-                        <TextBox Grid.Row="3" Grid.Column="0" Text="{Binding M02}" Margin="2" IsEnabled="{Binding IsProjective}"/>
-                        <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding M12}" Margin="2" IsEnabled="{Binding IsProjective}"/>
-                    </Grid>
-                </GroupBox>
-
-                <Button Content="Скинути трансформації" Command="{Binding ResetTransformCommand}" Margin="0,10,0,0"/>
-            </StackPanel>
+                </TabItem>
+            </TabControl>
         </ScrollViewer>
     </Grid>
 </Window>
