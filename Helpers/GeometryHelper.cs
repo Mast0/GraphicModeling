@@ -12,7 +12,7 @@ public static class GeometryHelper
     /// </summary>
     /// <param name="arcSegment"></param>
     /// <returns></returns>
-    public static List<Point> TessellateArc(Segment arcSegment)
+    public static List<Point> TessellateArc(Segment arcSegment, double angleStep = 10.0)
     {
         var points = new List<Point>();
         Point start = arcSegment.StartPoint;
@@ -48,7 +48,7 @@ public static class GeometryHelper
         else if (!arcSegment.IsClockwise && sweepAngle < 0) sweepAngle += 2 * Math.PI;
 
         // Розбиваємо дугу із кроком приблизно у 18 градус
-        int numSteps = (int)Math.Ceiling(Math.Abs(sweepAngle * 180.0 / Math.PI) / 10.0);
+        int numSteps = (int)Math.Ceiling(Math.Abs(sweepAngle * 180.0 / Math.PI) / angleStep);
         if (numSteps == 0)
         {
             points.Add(start);
@@ -56,15 +56,45 @@ public static class GeometryHelper
             return points;
         }
 
-        double angleStep = sweepAngle / numSteps;
+        double step = sweepAngle / numSteps;
 
         for (int i = 0; i <= numSteps; i++)
         {
-            double currentAngle = startAngle + i * angleStep;
+            double currentAngle = startAngle + i * step;
             double px = center.X + radius * Math.Cos(currentAngle);
             double py = center.Y + radius * Math.Sin(currentAngle);
             points.Add(new Point(px, py));
         }
+
+        return points;
+    }
+
+    /// <summary>
+    /// Розбиває коло на список точок, що апроксимують його
+    /// </summary>
+    /// <param name="circle"></param>
+    /// <returns></returns>
+    public static List<Point> TessellateCircle(CircleShape circle, double angleStep = 10.0)
+    {
+        var points = new List<Point>();
+        Point center = circle.Center;
+        double radius = circle.Radius;
+
+        for (double angle = 0; angle < 360; angle += angleStep)
+        {
+            // конвертуємо градуси в радіани
+            double angleRad = angle * Math.PI / 180.0;
+
+            // Формула знаходження точки на колі
+            double px = center.X + radius * Math.Cos(angleRad);
+            double py = center.Y + radius * Math.Sin(angleRad);
+
+            points.Add(new Point(px, py));
+        }
+
+        // додаємо першу точку в кінець щоб замкнути фігуру
+        if (points.Count > 0)
+            points.Add(points[0]);
 
         return points;
     }

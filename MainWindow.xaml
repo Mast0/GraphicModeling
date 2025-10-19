@@ -42,13 +42,6 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
-                <!--<Line X1="{Binding TransformedAxisX.StartPoint.X}" Y1="{Binding TransformedAxisX.StartPoint.Y}"
-                      X2="{Binding TransformedAxisX.EndPoint.X}" Y2="{Binding TransformedAxisX.EndPoint.Y}"
-                      Stroke="Red" StrokeThickness="1.5"/>
-                <Line X1="{Binding TransformedAxisY.StartPoint.X}" Y1="{Binding TransformedAxisY.StartPoint.Y}"
-                      X2="{Binding TransformedAxisY.EndPoint.X}" Y2="{Binding TransformedAxisY.EndPoint.Y}"
-                      Stroke="Green" StrokeThickness="1.5"/>-->
-
                 <ItemsControl ItemsSource="{Binding TransformedSegments}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>

@@ -15,10 +15,11 @@ namespace GraphicModelling.ViewModels;
 
 public class MainViewModel : INotifyPropertyChanged
 {
+    private const int PIXELS_IN_SANTIMETER = 35;
+
     private ObservableCollection<Segment> _originalSegments;
-    private readonly List<Segment> _originalGridLines = new List<Segment>();
-    //private Segment _originalAxisX;
-    //private Segment _originalAxisY;
+    private ObservableCollection<CircleShape> _originalCircles;
+    private readonly ObservableCollection<Segment> _originalGridLines = new ObservableCollection<Segment>();
 
     public ObservableCollection<Segment> TransformedSegments { get; set; }
     public ObservableCollection<Segment> TransformedGridLines { get; set; }
@@ -45,7 +46,7 @@ public class MainViewModel : INotifyPropertyChanged
         set { _angle = value; OnPropertyChanged(); UpdateAndApplyTransforms(); }
     }
 
-    private Point _rotationCenter = new Point(15, 15);
+    private Point _rotationCenter = new Point(4.7 * PIXELS_IN_SANTIMETER, 12.5 * PIXELS_IN_SANTIMETER);
     public Point RotationCenter
     {
         get => _rotationCenter;
@@ -96,8 +97,6 @@ public class MainViewModel : INotifyPropertyChanged
 
         CreateModel();
         //CreateOriginalShape();
-        //_originalAxisX = new Segment(new Point(0, 0), new Point(0, 600));
-        //_originalAxisY = new Segment(new Point(0, 0), new Point(600, 0));
         ResetTransformCommand = new MainViewModelCommand(ResetTransform);
 
         UpdateAndApplyTransforms();
@@ -105,9 +104,7 @@ public class MainViewModel : INotifyPropertyChanged
 
     public void UpdateCanvasSize(double width, double height)
     {
-        //_originalAxisX = new Segment(new Point(0, 0), new Point(0, width));
-        //_originalAxisY = new Segment(new Point(0, 0), new Point(height, 0));
-        CreateOriginalGrid(width, height, 35);
+        CreateOriginalGrid(width, height, PIXELS_IN_SANTIMETER);
         UpdateAndApplyTransforms();
     }
 
@@ -135,8 +132,12 @@ public class MainViewModel : INotifyPropertyChanged
             new Segment(9, 16, 9, 3.8),
             new Segment(9, 3.8, 8, 3.8),
             new Segment(8, 3.8, 8, 4),
-            new Segment(8, 4, 7, 4),
-            //new Segment(4.1, 12.5, 5.2, 12.5, 180)
+            new Segment(8, 4, 7, 4)
+        };
+
+        _originalCircles = new ObservableCollection<CircleShape>
+        {
+            new CircleShape(4.7, 12.5, 0.6)
         };
     }
 
@@ -169,7 +170,7 @@ public class MainViewModel : INotifyPropertyChanged
         else return userMatrix;
     }
 
-    private void UpdateAndApplyTransforms()
+    private void UpdateAndApplyTransforms(bool withRotationCenter = true)
     {
         Matrix3x3 finalMatrix = BuildTransformationMatrix(true);
 
@@ -201,6 +202,21 @@ public class MainViewModel : INotifyPropertyChanged
             }
         }
 
+        // -----------------
+        // -------Кола------
+        // -----------------
+        foreach (var orCircle in _originalCircles)
+        {
+            List<Point> circlePoints = GeometryHelper.TessellateCircle(orCircle);
+
+            for (int i = 0; i < circlePoints.Count - 1; i++)
+            {
+                Point transformedStart = TransformationHelper.ApplyTransformations(circlePoints[i], finalMatrix);
+                Point transformedEnd = TransformationHelper.ApplyTransformations(circlePoints[i + 1], finalMatrix);
+                TransformedSegments.Add(new Segment(transformedStart, transformedEnd));
+            }
+        }
+
         Matrix3x3 gridFinalMatrix = BuildTransformationMatrix(false);
         // -----------------
         // ------Сітка------
@@ -208,27 +224,14 @@ public class MainViewModel : INotifyPropertyChanged
         TransformedGridLines.Clear();
         foreach (var orGL in _originalGridLines)
         {
-            Point newStart = TransformationHelper.ApplyTransformations(
-                orGL.StartPoint, gridFinalMatrix);
-            Point newEnd = TransformationHelper.ApplyTransformations(
-                orGL.EndPoint, gridFinalMatrix);
+            Point newStart = TransformationHelper.ApplyTransformations(orGL.StartPoint, gridFinalMatrix);
+            Point newEnd = TransformationHelper.ApplyTransformations(orGL.EndPoint, gridFinalMatrix);
             TransformedGridLines.Add(new Segment(newStart, newEnd));
         }
 
         // -----------------
-        // -------Осі-------
+        // -Центр Обертання-
         // -----------------
-        //Point axisXStart = TransformationHelper.ApplyTransformations(
-        //        _originalAxisX.StartPoint, gridFinalMatrix);
-        //Point axisXEnd = TransformationHelper.ApplyTransformations(
-        //        _originalAxisX.EndPoint, gridFinalMatrix);
-        //TransformedAxisX = new Segment(axisXStart, axisXEnd);
-
-        //Point axisYStart = TransformationHelper.ApplyTransformations(
-        //        _originalAxisY.StartPoint, gridFinalMatrix);
-        //Point axisYEnd = TransformationHelper.ApplyTransformations(
-        //        _originalAxisY.EndPoint, gridFinalMatrix);
-        //TransformedAxisX = new Segment(axisYStart, axisYEnd);
     }
 
     #region Command Handlers
@@ -236,7 +239,7 @@ public class MainViewModel : INotifyPropertyChanged
     private void ResetTransform(object obj)
     {
         Angle = 0;
-        RotationCenter = new Point(150, 150);
+        RotationCenter = new Point(4.7 * PIXELS_IN_SANTIMETER, 12.5 * PIXELS_IN_SANTIMETER); ;
         M00 = 1; M01 = 0; M02 = 0;
         M11 = 1; M12 = 0; 
         M20 = 0; M21 = 0;

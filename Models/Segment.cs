@@ -34,10 +34,4 @@ public class Segment
         Radius = radius;
         IsClockwise = isClockwise;
     }
-    public Segment() { }
-
-    public override string ToString()
-    {
-        return $"[{StartPoint.X:F1};{StartPoint.Y:F1}] -> [{EndPoint.X:F1};{EndPoint.Y:F1}]";
-    }
 }
