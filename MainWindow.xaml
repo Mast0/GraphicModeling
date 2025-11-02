@@ -59,8 +59,8 @@
 
                 <Ellipse x:Name="RotationCenter"
                      Fill="Gold" Stroke="Black" StrokeThickness="1" Width="10" Height="10"
-                     Canvas.Left="{Binding RotationCenter.X, Converter={StaticResource CenterConverter}, ConverterParameter=10}"
-                     Canvas.Top="{Binding RotationCenter.Y, Converter={StaticResource CenterConverter}, ConverterParameter=10}"
+                     Canvas.Left="{Binding TransformedRotationCenter.X, Converter={StaticResource CenterConverter}, ConverterParameter=10}"
+                     Canvas.Top="{Binding TransformedRotationCenter.Y, Converter={StaticResource CenterConverter}, ConverterParameter=10}"
                      MouseLeftButtonDown="RotationCenter_MouseLeftButtonDown"
                      MouseLeftButtonUp="RotationCenter_MouseLeftButtonUp"
                      MouseMove="RotationCenter_MouseMove"/>
@@ -86,9 +86,10 @@
                             </StackPanel>
                         </GroupBox>
 
-                        <GroupBox Header="Affine/Projective Parameters" IsEnabled="{Binding IsAffine}">
+                        <GroupBox Header="Affine/Projective Parameters">
                             <Grid>
                                 <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
                                     <ColumnDefinition/>
                                     <ColumnDefinition/>
                                 </Grid.ColumnDefinitions>
@@ -96,20 +97,34 @@
                                     <RowDefinition/>
                                     <RowDefinition/>
                                     <RowDefinition/>
-                                    <RowDefinition/>
                                 </Grid.RowDefinitions>
 
-                                <TextBox Grid.Row="0" Grid.Column="0" Text="{Binding M00}" Margin="2"/>
-                                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding M01}" Margin="2"/>
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Xx:" VerticalAlignment="Center" Margin="2,0"/>
+                                <TextBox Grid.Row="0" Grid.Column="0" Text="{Binding M00}" Margin="25,0,0,0" IsEnabled="{Binding IsAffine}"/>
 
-                                <TextBox Grid.Row="1" Grid.Column="0" Text="{Binding M10}" Margin="2"/>
-                                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding M11}" Margin="2"/>
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="Xy:" VerticalAlignment="Center" Margin="2,0"/>
+                                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding M01}" Margin="25,0,0,0" IsEnabled="{Binding IsAffine}"/>
 
-                                <TextBox Grid.Row="2" Grid.Column="0" Text="{Binding M20}" Margin="2"/>
-                                <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding M21}" Margin="2"/>
+                                <TextBlock Grid.Row="0" Grid.Column="2" Text="Wx:" VerticalAlignment="Center" Margin="2,0"/>
+                                <TextBox Grid.Row="0" Grid.Column="2" Text="{Binding M02}" Margin="25,0,0,0" IsEnabled="{Binding IsProjective}"/>
 
-                                <TextBox Grid.Row="3" Grid.Column="0" Text="{Binding M02}" Margin="2" IsEnabled="{Binding IsProjective}"/>
-                                <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding M12}" Margin="2" IsEnabled="{Binding IsProjective}"/>
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Yx:" VerticalAlignment="Center" Margin="2,0"/>
+                                <TextBox Grid.Row="1" Grid.Column="0" Text="{Binding M10}" Margin="25,0,0,0" IsEnabled="{Binding IsAffine}"/>
+
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="Yy:" VerticalAlignment="Center" Margin="2,0"/>
+                                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding M11}" Margin="25,0,0,0" IsEnabled="{Binding IsAffine}"/>
+
+                                <TextBlock Grid.Row="1" Grid.Column="2" Text="Wy:" VerticalAlignment="Center" Margin="2,0"/>
+                                <TextBox Grid.Row="1" Grid.Column="2" Text="{Binding M12}" Margin="25,0,0,0" IsEnabled="{Binding IsProjective}"/>
+
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Dx:" VerticalAlignment="Center" Margin="2,0"/>
+                                <TextBox Grid.Row="2" Grid.Column="0" Text="{Binding M20}" Margin="25,0,0,0" IsEnabled="{Binding IsAffine}"/>
+
+                                <TextBlock Grid.Row="2" Grid.Column="1" Text="Dy:" VerticalAlignment="Center" Margin="2,0"/>
+                                <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding M21}" Margin="25,0,0,0" IsEnabled="{Binding IsAffine}"/>
+
+                                <TextBlock Grid.Row="2" Grid.Column="2" Text="W0:" VerticalAlignment="Center" Margin="2,0"/>
+                                <TextBox Grid.Row="2" Grid.Column="2" Text="{Binding M22}" Margin="25,0,0,0" IsEnabled="{Binding IsProjective}"/>
                             </Grid>
                         </GroupBox>
 

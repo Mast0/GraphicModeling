@@ -8,7 +8,6 @@ public class Segment : INotifyPropertyChanged
 {
     private Point _startPoint;
     private Point _endPoint;
-    private double _radius;
 
     public Point StartPoint 
     { 
@@ -20,12 +19,7 @@ public class Segment : INotifyPropertyChanged
         get => _endPoint;
         set { _endPoint = value; OnPropertyChanged(); }
     }
-    public double Radius 
-    { 
-        get => _radius;
-        set { _radius = value; OnPropertyChanged(); }
-    }
-    public bool IsClockwise { get; set; }
+
     public double Length
     {
         get
@@ -34,8 +28,6 @@ public class Segment : INotifyPropertyChanged
         }
         set
         {
-            if (Radius > 0) return;
-
             Vector v = EndPoint - StartPoint;
             double currentLength = v.Length;
 
@@ -55,24 +47,12 @@ public class Segment : INotifyPropertyChanged
     {
         StartPoint = start;
         EndPoint = end;
-        Radius = 0;
-        IsClockwise = false;
     }
 
     public Segment(double startX, double startY, double endX, double endY)
     {
         StartPoint = new Point(startX * 35, startY * 35);
         EndPoint = new Point(endX * 35, endY * 35);
-        Radius = 0;
-        IsClockwise = false;
-    }
-
-    public Segment(double startX, double startY, double endX, double endY, double radius, bool isClockwise = false)
-    {
-        StartPoint = new Point(startX * 35, startY * 35);
-        EndPoint = new Point(endX * 35, endY * 35);
-        Radius = radius;
-        IsClockwise = isClockwise;
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

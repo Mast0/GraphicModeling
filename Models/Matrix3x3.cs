@@ -4,7 +4,7 @@ namespace GraphicModelling.Models;
 
 public struct Matrix3x3
 {
-    public double M00, M01, M02, M10, M11, M12, M20, M21, M22;
+    public double Xx, Xy, Wx, Yx, Yy, Wy, Ox, Oy, wO;
 
     // m00, m01, m02 -> перший стовпчик матриці (для X)
     // m10, m11, m12 -> другий стовпчик матриці (для Y)
@@ -14,9 +14,9 @@ public struct Matrix3x3
         double m10, double m11, double m12,
         double m20, double m21, double m22)
     {
-        M00 = m00; M01 = m01; M02 = m02;
-        M10 = m10; M11 = m11; M12 = m12;
-        M20 = m20; M21 = m21; M22 = m22;
+        Xx = m00; Xy = m01; Wx = m02;
+        Yx = m10; Yy = m11; Wy = m12;
+        Ox = m20; Oy = m21; wO = m22;
     }
 
     public static Matrix3x3 Identity => new Matrix3x3(1, 0, 0,
@@ -27,15 +27,15 @@ public struct Matrix3x3
     {
         Matrix3x3 res = new Matrix3x3();
 
-        res.M00 = a.M00 * b.M00 + a.M01 * b.M10 + a.M02 * b.M20;
-        res.M01 = a.M00 * b.M01 + a.M01 * b.M11 + a.M02 * b.M21;
-        res.M02 = a.M00 * b.M02 + a.M01 * b.M12 + a.M02 * b.M22;
-        res.M10 = a.M10 * b.M00 + a.M11 * b.M10 + a.M12 * b.M20;
-        res.M11 = a.M10 * b.M01 + a.M11 * b.M11 + a.M12 * b.M21;
-        res.M12 = a.M10 * b.M02 + a.M11 * b.M12 + a.M12 * b.M22;
-        res.M20 = a.M20 * b.M00 + a.M21 * b.M10 + a.M22 * b.M20;
-        res.M21 = a.M20 * b.M01 + a.M21 * b.M11 + a.M22 * b.M21;
-        res.M22 = a.M20 * b.M02 + a.M21 * b.M12 + a.M22 * b.M22;
+        res.Xx = a.Xx * b.Xx + a.Xy * b.Yx + a.Wx * b.Ox;
+        res.Xy = a.Xx * b.Xy + a.Xy * b.Yy + a.Wx * b.Oy;
+        res.Wx = a.Xx * b.Wx + a.Xy * b.Wy + a.Wx * b.wO;
+        res.Yx = a.Yx * b.Xx + a.Yy * b.Yx + a.Wy * b.Ox;
+        res.Yy = a.Yx * b.Xy + a.Yy * b.Yy + a.Wy * b.Oy;
+        res.Wy = a.Yx * b.Wx + a.Yy * b.Wy + a.Wy * b.wO;
+        res.Ox = a.Ox * b.Xx + a.Oy * b.Yx + a.wO * b.Ox;
+        res.Oy = a.Ox * b.Xy + a.Oy * b.Yy + a.wO * b.Oy;
+        res.wO = a.Ox * b.Wx + a.Oy * b.Wy + a.wO * b.wO;
 
         return res;
     }

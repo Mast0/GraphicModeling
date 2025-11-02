@@ -61,18 +61,27 @@ public class MainViewModel : INotifyPropertyChanged
         }
     }
 
+    private Point _transformedRotationCenter;
+    public Point TransformedRotationCenter
+    {
+        get => _transformedRotationCenter;
+        private set { _transformedRotationCenter = value; OnPropertyChanged(); }
+    }
+
     // Матричні параметри для афінної трансформації
-    private double _m00 = 1, _m01 = 0, _m10 = 0, _m11 = 1, _m20 = 0, _m21 = 0;
-    private double _m02 = 0, _m12 = 0;
+    private double _m00 = 1, _m01 = 0, _m02 = 0;
+    private double _m10 = 0, _m11 = 1, _m12 = 0;
+    private double _m20 = 0, _m21 = 0, _m22 = 1;
 
     public double M00 { get => _m00; set { _m00 = value; OnPropertyChanged(); UpdateAndApplyTransforms(); } } // xx
     public double M01 { get => _m01; set { _m01 = value; OnPropertyChanged(); UpdateAndApplyTransforms(); } } // xy
+    public double M02 { get => _m02; set { _m02 = value; OnPropertyChanged(); UpdateAndApplyTransforms(); } } // wx (projective)
     public double M10 { get => _m10; set { _m10 = value; OnPropertyChanged(); UpdateAndApplyTransforms(); } } // yx
     public double M11 { get => _m11; set { _m11 = value; OnPropertyChanged(); UpdateAndApplyTransforms(); } } // yy
+    public double M12 { get => _m12; set { _m12 = value; OnPropertyChanged(); UpdateAndApplyTransforms(); } } // wy (projective)
     public double M20 { get => _m20; set { _m20 = value; OnPropertyChanged(); UpdateAndApplyTransforms(); } } // dx (offset)
     public double M21 { get => _m21; set { _m21 = value; OnPropertyChanged(); UpdateAndApplyTransforms(); } } // dy (offset)
-    public double M02 { get => _m02; set { _m02 = value; OnPropertyChanged(); UpdateAndApplyTransforms(); } } // wx (projective)
-    public double M12 { get => _m12; set { _m12 = value; OnPropertyChanged(); UpdateAndApplyTransforms(); } } // wy (projective)
+    public double M22 { get => _m22; set { _m22 = value; OnPropertyChanged(); UpdateAndApplyTransforms(); } } // w0 - вага для початку координат
 
     private bool _isAffine;
     public bool IsAffine
@@ -119,7 +128,7 @@ public class MainViewModel : INotifyPropertyChanged
         OriginalSegments = new ObservableCollection<Segment>
         {
             new Segment(1, 1, 2, 1),
-            new Segment(2, 1, 2, 2, 60, false),
+            new Segment(2, 1, 2, 2),
             new Segment(2, 2, 1, 2),
             new Segment(1, 2, 1, 1)
         };
@@ -174,7 +183,7 @@ public class MainViewModel : INotifyPropertyChanged
             userMatrix = new Matrix3x3(
                 M00, M01, IsProjective ? M02 : 0,
                 M10, M11, IsProjective ? M12 : 0,
-                M20, M21, 1);
+                M20, M21, IsProjective ? M22 : 1);
         }
 
         if (isRotate)
@@ -196,26 +205,9 @@ public class MainViewModel : INotifyPropertyChanged
         TransformedSegments.Clear();
         foreach (var orSeg in OriginalSegments)
         {
-            // Поточний сегмент дуга?
-            if (orSeg.Radius > 0 && orSeg.StartPoint != orSeg.EndPoint)
-            {
-                // Розбиваємо дугу на набір точок
-                var arcPoints = GeometryHelper.TessellateArc(orSeg);
-
-                // Трансформуємо кожну точку і створюємо з них маленькі прямі відрізки
-                for (int i = 0; i < arcPoints.Count - 1; i++)
-                {
-                    var transformedStart = TransformationHelper.ApplyTransformations(arcPoints[i], finalMatrix);
-                    var transformedEnd = TransformationHelper.ApplyTransformations(arcPoints[i + 1], finalMatrix);
-                    TransformedSegments.Add(new Segment(transformedStart, transformedEnd));
-                }
-            }
-            else
-            {
-                Point newStart = TransformationHelper.ApplyTransformations(orSeg.StartPoint, finalMatrix);
-                Point newEnd = TransformationHelper.ApplyTransformations(orSeg.EndPoint, finalMatrix);
-                TransformedSegments.Add(new Segment(newStart, newEnd));
-            }
+            Point newStart = TransformationHelper.ApplyTransformations(orSeg.StartPoint, finalMatrix);
+            Point newEnd = TransformationHelper.ApplyTransformations(orSeg.EndPoint, finalMatrix);
+            TransformedSegments.Add(new Segment(newStart, newEnd));
         }
 
         // -----------------
@@ -245,9 +237,7 @@ public class MainViewModel : INotifyPropertyChanged
             TransformedGridLines.Add(new Segment(newStart, newEnd));
         }
 
-        // -----------------
-        // -Центр Обертання-
-        // -----------------
+        TransformedRotationCenter = TransformationHelper.ApplyTransformations(RotationCenter, finalMatrix);
     }
 
     #region Command Handlers
@@ -257,8 +247,8 @@ public class MainViewModel : INotifyPropertyChanged
         Angle = 0;
         RotationCenter = new Point(4.7 * PIXELS_IN_SANTIMETER, 12.5 * PIXELS_IN_SANTIMETER); ;
         M00 = 1; M01 = 0; M02 = 0;
-        M11 = 1; M12 = 0; 
-        M20 = 0; M21 = 0;
+        M10 = 0; M11 = 1; M12 = 0; 
+        M20 = 0; M21 = 0; M22 = 1;
         IsAffine = false;
         IsProjective = false;
     }

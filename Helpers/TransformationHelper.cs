@@ -12,12 +12,14 @@ public static class TransformationHelper
         double x = point.X;
         double y = point.Y;
 
-        double w = x * matrix.M02 + y * matrix.M12 + matrix.M22;
+        double w = x * matrix.Wx + y * matrix.Wy + matrix.wO;
+        double Wx = matrix.Wx == 0 ? 1 : matrix.Wx;
+        double Wy = matrix.Wy == 0 ? 1 : matrix.Wy;
 
         if (Math.Abs(w) < 1e-9) w = 1e-9;
 
-        double newX = (x * matrix.M00 + y * matrix.M10 + matrix.M20) / w;
-        double newY = (x * matrix.M01 + y * matrix.M11 + matrix.M21) / w;
+        double newX = (x * matrix.Xx * Wx + y * matrix.Yx * Wy + matrix.Ox * matrix.wO) / w;
+        double newY = (x * matrix.Xy * Wx + y * matrix.Yy * Wy + matrix.Oy * matrix.wO) / w;
 
         return new Point(newX, newY);
     }
