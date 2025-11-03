@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
@@ -47,6 +48,13 @@ public class MainViewModel : INotifyPropertyChanged
     {
         get => _angle;
         set { _angle = value; OnPropertyChanged(); UpdateAndApplyTransforms(); }
+    }
+
+    private double _scale = 1.0;
+    public double Scale
+    {
+        get => _scale;
+        set { _scale = value; OnPropertyChanged(); UpdateAndApplyTransforms(); }
     }
 
     private Point _rotationCenter = new Point(4.7 * PIXELS_IN_SANTIMETER, 12.5 * PIXELS_IN_SANTIMETER);
@@ -186,12 +194,17 @@ public class MainViewModel : INotifyPropertyChanged
                 M20, M21, IsProjective ? M22 : 1);
         }
 
+        Matrix3x3 tempMatrix = new();
         if (isRotate)
         {
             Matrix3x3 rotationMatrix = Matrix3x3.CreateRotation(Angle, RotationCenter);
+            Matrix3x3 scalingMatrix = Matrix3x3.CreateScaling(Scale, RotationCenter);
 
-            return Matrix3x3.Multiply(rotationMatrix, userMatrix);
+            tempMatrix = Matrix3x3.Multiply(scalingMatrix, rotationMatrix);
+
+            return Matrix3x3.Multiply(tempMatrix, userMatrix);
         }
+
         else return userMatrix;
     }
 
@@ -244,7 +257,7 @@ public class MainViewModel : INotifyPropertyChanged
 
     private void ResetTransform(object obj)
     {
-        Angle = 0;
+        Angle = 0; Scale = 1.0;
         RotationCenter = new Point(4.7 * PIXELS_IN_SANTIMETER, 12.5 * PIXELS_IN_SANTIMETER); ;
         M00 = 1; M01 = 0; M02 = 0;
         M10 = 0; M11 = 1; M12 = 0; 

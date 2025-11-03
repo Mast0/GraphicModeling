@@ -30,9 +30,11 @@ public struct Matrix3x3
         res.Xx = a.Xx * b.Xx + a.Xy * b.Yx + a.Wx * b.Ox;
         res.Xy = a.Xx * b.Xy + a.Xy * b.Yy + a.Wx * b.Oy;
         res.Wx = a.Xx * b.Wx + a.Xy * b.Wy + a.Wx * b.wO;
+
         res.Yx = a.Yx * b.Xx + a.Yy * b.Yx + a.Wy * b.Ox;
         res.Yy = a.Yx * b.Xy + a.Yy * b.Yy + a.Wy * b.Oy;
         res.Wy = a.Yx * b.Wx + a.Yy * b.Wy + a.Wy * b.wO;
+
         res.Ox = a.Ox * b.Xx + a.Oy * b.Yx + a.wO * b.Ox;
         res.Oy = a.Ox * b.Xy + a.Oy * b.Yy + a.wO * b.Oy;
         res.wO = a.Ox * b.Wx + a.Oy * b.Wy + a.wO * b.wO;
@@ -55,5 +57,19 @@ public struct Matrix3x3
             cos, sin, 0,
             -sin, cos, 0,
             m20, m21, 1);
+    }
+
+    public static Matrix3x3 CreateScaling(double scale, Point center)
+    {
+        double px = center.X;
+        double py = center.Y;
+
+        double Ox = px * (1 - scale);
+        double Oy = py * (1 - scale);
+
+        return new Matrix3x3(
+            scale, 0, 0,
+            0, scale, 0,
+            Ox, Oy, 1);
     }
 }

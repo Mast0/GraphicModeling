@@ -76,6 +76,10 @@
                                 <TextBlock Text="Кут обертання:"/>
                                 <Slider Minimum="0" Maximum="360" Value="{Binding Angle, Mode=TwoWay}" TickFrequency="1"/>
                                 <TextBlock Text="{Binding Angle, StringFormat='{}{0:F0}°'}"/>
+
+                                <TextBlock Text="Масштаб:" Margin="0,10,0,0"/>
+                                <Slider Minimum="0.1" Maximum="5.0" Value="{Binding Scale, Mode=TwoWay}" TickFrequency="0.1"/>
+                                <TextBlock Text="{Binding Scale, StringFormat='{}{0:F1}x'}"/>
                             </StackPanel>
                         </GroupBox>
 
@@ -137,7 +141,7 @@
                         <GroupBox Header="Model Parameters" Margin="0,10,0,0">
                             <StackPanel>
                                 <TextBlock Text="Segments:" FontWeight="Bold" Margin="0,0,0,5" />
-                                <ItemsControl ItemsSource="{Binding OriginalSegments}">
+                                <ItemsControl ItemsSource="{Binding TransformedSegments}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Border BorderBrush="LightGray" BorderThickness="0,0,0,1" Padding="0,5">
@@ -149,15 +153,6 @@
                                                         </Grid.ColumnDefinitions>
                                                         <TextBlock Grid.Column="0" Text="Length: " VerticalAlignment="Center"/>
                                                         <TextBox Grid.Column="1" Text="{Binding Length, UpdateSourceTrigger=PropertyChanged}" Margin="5,0"/>
-                                                    </Grid>
-
-                                                    <Grid>
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="Auto"/>
-                                                            <ColumnDefinition Width="*"/>
-                                                        </Grid.ColumnDefinitions>
-                                                        <TextBlock Grid.Column="0" Text="Radius: " VerticalAlignment="Center"/>
-                                                        <TextBox Grid.Column="1" Text="{Binding Radius, UpdateSourceTrigger=PropertyChanged}" Margin="5,0"/>
                                                     </Grid>
                                                 </StackPanel>
                                             </Border>

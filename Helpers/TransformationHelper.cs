@@ -18,8 +18,8 @@ public static class TransformationHelper
 
         if (Math.Abs(w) < 1e-9) w = 1e-9;
 
-        double newX = (x * matrix.Xx * Wx + y * matrix.Yx * Wy + matrix.Ox * matrix.wO) / w;
-        double newY = (x * matrix.Xy * Wx + y * matrix.Yy * Wy + matrix.Oy * matrix.wO) / w;
+        double newX = (x * matrix.Xx + y * matrix.Yx + matrix.Ox) / w;
+        double newY = (x * matrix.Xy + y * matrix.Yy + matrix.Oy) / w;
 
         return new Point(newX, newY);
     }
