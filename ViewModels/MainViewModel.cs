@@ -189,9 +189,9 @@ public class MainViewModel : INotifyPropertyChanged
         if (IsAffine || IsProjective)
         {
             userMatrix = new Matrix3x3(
-                M00, M01, IsProjective ? M02 : 0,
-                M10, M11, IsProjective ? M12 : 0,
-                M20, M21, IsProjective ? M22 : 1);
+                IsProjective ? M00 * M02 : M00, IsProjective ? M01 * M02 : M01, IsProjective ? M02 : 0,
+                IsProjective ? M10 * M12 : M10, IsProjective ? M11 * M12 : M11, IsProjective ? M12 : 0,
+                IsProjective ? M20 * M22 : M20, IsProjective ? M21 * M22 : M21, IsProjective ? M22 : 1);
         }
 
         Matrix3x3 tempMatrix = new();
