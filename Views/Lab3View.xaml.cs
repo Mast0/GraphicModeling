@@ -30,7 +30,18 @@ namespace GraphicModelling.Views
 
             // Проходимо по всіх сегментах і шукаємо найближчу точку
             double threshold = 10.0;
-            
+
+            if (e.ClickCount == 2 && vm.Angle == 0 && vm.Scale == 1)
+            {
+                for (int i = 0; i < vm.OriginalSegments.Count; i++)
+                {
+                    var seg = vm.OriginalSegments[i];
+                    if ((seg.P0 - mousePos).Length < threshold) { vm.TogglePointType(i, 0); return; }
+                    if ((seg.P1 - mousePos).Length < threshold) { vm.TogglePointType(i, 3); return; }
+                }
+                return;
+            }
+
             // Можемо переміщати точки лише в оригінальному стані
             if (vm.Angle == 0 && vm.Scale == 1 && !vm.IsAffine && !vm.IsProjective)
             {

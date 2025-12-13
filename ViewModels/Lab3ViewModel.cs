@@ -26,6 +26,9 @@ public class Lab3ViewModel : BaseViewModel
     // Трансформовані точки-маркери, які можна перетягувати
     public ObservableCollection<CircleShape> ControlPointsMarkers { get; set; }
 
+    // Прапорці точок зламу
+    private List<bool> _breakPoints;
+
     private bool _showPolygon = true;
     public bool ShowPolygon
     {
@@ -60,6 +63,9 @@ public class Lab3ViewModel : BaseViewModel
         ControlPointsMarkers = new ObservableCollection<CircleShape>();
 
         CreateBirdContour();
+
+        _breakPoints = Enumerable.Repeat(false, OriginalSegments.Count).ToList();
+
         InitializeAnimationTargets();
         
         
@@ -141,30 +147,110 @@ public class Lab3ViewModel : BaseViewModel
         TransformedRotationCenter = TransformationHelper.ApplyTransformations(RotationCenter, matrix);
     }
 
+    public void TogglePointType(int segmentIndex, int pointType)
+    {
+        int jointIdx = -1;
+
+        if (pointType == 0) // P0 сегмента i
+            jointIdx = segmentIndex;
+        else if (pointType == 3) // P1 сегмента i -> це P0 наступного
+            jointIdx = (segmentIndex == OriginalSegments.Count - 1) ? 0 : segmentIndex + 1;
+
+        if (jointIdx != -1)
+        {
+            _breakPoints[jointIdx] = !_breakPoints[jointIdx];
+
+            // Якщо увімкнули гладкість, вирівнюємо дотичні
+            if (!_breakPoints[jointIdx])
+            {
+                EnforceSmoothness(jointIdx);
+            }
+        }
+    }
+
+    private void EnforceSmoothness(int jointIdx)
+    {
+        // Вузол знаходиться в P0 сегмента jointIdx
+        // Попередній сегмент
+        int prevIdx = (jointIdx == 0) ? OriginalSegments.Count - 1 : jointIdx - 1;
+
+        var segCurr = OriginalSegments[jointIdx];
+        var segPrev = OriginalSegments[prevIdx];
+
+        Point knot = segCurr.P0;
+
+        // Беремо вектор зліва (Knot - C1_prev) і дзеркалимо його направо
+        Vector v = knot - segPrev.C1;
+
+        // Встановлюємо C0_curr так, щоб він був на продовженні
+        segCurr.C0 = knot + v;
+    }
+
     public void MovePoint(int segmentIndex, int pointType, Point newPos)
     {
         var seg = OriginalSegments[segmentIndex];
 
-        Point target = newPos;
+        // Поточна точка до зміни (для дельти, якщо треба)
+        Point oldPos = (pointType == 0) ? seg.P0 : (pointType == 1) ? seg.C0 : (pointType == 2) ? seg.C1 : seg.P1;
+        Vector delta = newPos - oldPos;
 
+        // 1. Оновлюємо основну точку
         switch (pointType)
         {
-            case 0: seg.P0 = target; break;
-            case 1: seg.C0 = target; break;
-            case 2: seg.C1 = target; break;
-            case 3: seg.P1 = target; break;
+            case 0: seg.P0 = newPos; break;
+            case 1: seg.C0 = newPos; break;
+            case 2: seg.C1 = newPos; break;
+            case 3: seg.P1 = newPos; break;
         }
 
-        if (pointType == 3 && segmentIndex < OriginalSegments.Count - 1)
-            OriginalSegments[segmentIndex + 1].P0 = target;
-        if (pointType == 0 && segmentIndex > 0)
-            OriginalSegments[segmentIndex - 1].P1 = target;
+        // 2. Склейка контуру
+        // Якщо рухаємо P0 -> оновити P1 попереднього
+        if (pointType == 0)
+        {
+            int prevIdx = (segmentIndex == 0) ? OriginalSegments.Count - 1 : segmentIndex - 1;
+            OriginalSegments[prevIdx].P1 = newPos;
 
-        // Замикання контуру якщо потрібно
-        if (pointType == 3 && segmentIndex == OriginalSegments.Count - 1)
-            OriginalSegments[0].P0 = target;
-        if (pointType == 0 && segmentIndex == 0)
-            OriginalSegments[OriginalSegments.Count - 1].P1 = target;
+            seg.C0 += delta;
+            OriginalSegments[prevIdx].C1 += delta;
+        }
+        // Якщо рухаємо P1 -> оновити P0 наступного
+        else if (pointType == 3)
+        {
+            int nextIdx = (segmentIndex == OriginalSegments.Count - 1) ? 0 : segmentIndex + 1;
+            OriginalSegments[nextIdx].P0 = newPos;
+
+            seg.C1 += delta;
+            OriginalSegments[nextIdx].C0 += delta;
+        }
+
+        // 3. Логіка гладкості
+        if (pointType == 1)
+        {
+            int jointIdx = segmentIndex; // P0 сегмента i
+            if (!_breakPoints[jointIdx])
+            {
+                int prevIdx = (segmentIndex == 0) ? OriginalSegments.Count - 1 : segmentIndex - 1;
+                Point knot = seg.P0;
+                // Вектор дотичної: Knot - C0
+                Vector tan = knot - seg.C0;
+                // C1 попереднього = Knot + tan
+                OriginalSegments[prevIdx].C1 = knot + tan;
+            }
+        }
+        // Якщо рухаємо C1 сегмента i -> впливаємо на C0 наступного
+        else if (pointType == 2)
+        {
+            int nextIdx = (segmentIndex == OriginalSegments.Count - 1) ? 0 : segmentIndex + 1;
+            int jointIdx = nextIdx; // P0 наступного сегмента
+            if (!_breakPoints[jointIdx])
+            {
+                Point knot = seg.P1;
+                // Вектор дотичної: Knot - C1
+                Vector tan = knot - seg.C1;
+                // C0 наступного = Knot + tan
+                OriginalSegments[nextIdx].C0 = knot + tan;
+            }
+        }
     }
 
     private void CreateBirdContour()
@@ -335,6 +421,8 @@ public class Lab3ViewModel : BaseViewModel
             newSeg.PropertyChanged += (s, e) => UpdateAndApplyTransforms();
             OriginalSegments.Add(newSeg);
         }
+
+        _breakPoints = Enumerable.Repeat(false, OriginalSegments.Count).ToList();
 
         _animationProgress = 0;
         _animationDirectionForward = true;
