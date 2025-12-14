@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using System.Windows.Media;
 
 namespace GraphicModelling.Models;
 
@@ -8,6 +9,8 @@ public class Segment : INotifyPropertyChanged
 {
     private Point _startPoint;
     private Point _endPoint;
+
+    public Brush Color { get; set; } = Brushes.Black;
 
     public Point StartPoint 
     { 
@@ -47,6 +50,11 @@ public class Segment : INotifyPropertyChanged
     {
         StartPoint = start;
         EndPoint = end;
+    }
+
+    public Segment(Point start, Point end, Brush color) : this(start, end)
+    {
+        Color = color;
     }
 
     public Segment(double startX, double startY, double endX, double endY)
