@@ -13,12 +13,14 @@ public class MainViewModel : INotifyPropertyChanged
     public Lab1ViewModel Lab1ViewModel { get; set; }
     public Lab2ViewModel Lab2ViewModel { get; set; }
     public Lab3ViewModel Lab3ViewModel { get; set; }
+    public Lab5ViewModel Lab5ViewModel { get; set; }
 
     public MainViewModel()
     {
         Lab1ViewModel = new Lab1ViewModel();
         Lab2ViewModel = new Lab2ViewModel();
         Lab3ViewModel = new Lab3ViewModel();
+        Lab5ViewModel = new Lab5ViewModel();
     }
 
     #region INotifyPropertyChanged
