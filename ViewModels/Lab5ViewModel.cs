@@ -27,14 +27,14 @@ public class Lab5ViewModel : BaseViewModel
     public double PrismHeight
     {
         get => _prismHeight;
-        set { _prismHeight = value; RecreateModel(); }
+        set { _prismHeight = value; OnPropertyChanged(); RecreateModel(); }
     }
 
     private double _prismRadius = 50;
     public double PrismRadius
     {
         get => _prismRadius;
-        set { _prismRadius = value; RecreateModel(); }
+        set { _prismRadius = value; OnPropertyChanged(); RecreateModel(); }
     }
 
     // Трансформації
@@ -54,14 +54,14 @@ public class Lab5ViewModel : BaseViewModel
     public ProjectionPlane SelectedPlane
     {
         get => _selectedPlane;
-        set { _selectedPlane = value; Update(); }
+        set { _selectedPlane = value; OnPropertyChanged(); Update(); }
     }
 
     private double _projectionP = 0;
     public double ProjectionP
     {
         get => _projectionP;
-        set { _projectionP = value; Update(); }
+        set { _projectionP = value; OnPropertyChanged(); Update(); }
     }
     #endregion
 

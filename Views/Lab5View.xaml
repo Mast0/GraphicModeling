@@ -67,17 +67,15 @@
                 <GroupBox Header="Проекція (Варіант 16)">
                     <StackPanel>
                         <TextBlock Text="Площина проекції:"/>
-                        <ComboBox SelectedIndex="{Binding SelectedPlane, Converter={StaticResource EnumToBoolConverter}}">
-                        </ComboBox>
                         <StackPanel Orientation="Horizontal" Margin="0,5">
                             <RadioButton Content="Z=p" IsChecked="{Binding SelectedPlane, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Z}" Margin="5"/>
                             <RadioButton Content="Y=p" IsChecked="{Binding SelectedPlane, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Y}" Margin="5"/>
                             <RadioButton Content="X=p" IsChecked="{Binding SelectedPlane, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=X}" Margin="5"/>
                         </StackPanel>
 
-                        <TextBlock Text="Значення P:"/>
+                        <!--<TextBlock Text="Значення P:"/>
                         <Slider Minimum="-200" Maximum="200" Value="{Binding ProjectionP}"/>
-                        <TextBlock Text="{Binding ProjectionP, StringFormat=N0}" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding ProjectionP, StringFormat=N0}" HorizontalAlignment="Center"/>-->
                     </StackPanel>
                 </GroupBox>
 
