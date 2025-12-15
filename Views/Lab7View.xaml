@@ -1,0 +1,65 @@
+﻿<UserControl x:Class="GraphicModelling.Views.Lab7View"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:GraphicModelling.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="250"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" BorderBrush="Gray" BorderThickness="1" Margin="5">
+            <Canvas x:Name="FractalCanvas" Background="White" ClipToBounds="True">
+                <ItemsControl ItemsSource="{Binding FractalSegments}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Canvas/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Line X1="{Binding StartPoint.X}" Y1="{Binding StartPoint.Y}"
+                                  X2="{Binding EndPoint.X}" Y2="{Binding EndPoint.Y}"
+                                  Stroke="{Binding Color}" StrokeThickness="1.5"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Canvas>
+        </Border>
+
+        <ScrollViewer Grid.Column="1" Margin="5">
+            <StackPanel>
+                <GroupBox Header="Налаштування L-System">
+                    <StackPanel>
+                        <TextBlock Text="Аксіома (Start):"/>
+                        <TextBox Text="{Binding Axiom, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,5"/>
+
+                        <TextBlock Text="Правила (A->AB):"/>
+                        <TextBox Text="{Binding RulesText, UpdateSourceTrigger=PropertyChanged}" 
+                                 Height="80" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" 
+                                 FontFamily="Consolas" Margin="0,0,0,5"/>
+
+                        <TextBlock Text="Кут повороту:"/>
+                        <TextBox Text="{Binding Angle, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,5"/>
+
+                        <TextBlock Text="Ітерації (0-4):"/>
+                        <Slider Minimum="0" Maximum="4" Value="{Binding Iterations}" 
+                                TickFrequency="1" IsSnapToTickEnabled="True"/>
+                        <TextBlock Text="{Binding Iterations}" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Header="Відображення">
+                    <StackPanel>
+                        <CheckBox Content="Авто-масштаб" IsChecked="{Binding AutoScale}" Margin="0,5"/>
+                        <Button Content="Перебудувати" Command="{Binding GenerateCommand}" Margin="0,10" Height="30"/>
+                    </StackPanel>
+                </GroupBox>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

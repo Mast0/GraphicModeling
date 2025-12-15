@@ -15,6 +15,7 @@ public class MainViewModel : INotifyPropertyChanged
     public Lab3ViewModel Lab3ViewModel { get; set; }
     public Lab5ViewModel Lab5ViewModel { get; set; }
     public Lab6ViewModel Lab6ViewModel { get; set; }
+    public Lab7ViewModel Lab7ViewModel { get; set; }
 
     public MainViewModel()
     {
@@ -23,6 +24,7 @@ public class MainViewModel : INotifyPropertyChanged
         Lab3ViewModel = new Lab3ViewModel();
         Lab5ViewModel = new Lab5ViewModel();
         Lab6ViewModel = new Lab6ViewModel();
+        Lab7ViewModel = new Lab7ViewModel();
     }
 
     #region INotifyPropertyChanged

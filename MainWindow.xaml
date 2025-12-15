@@ -27,6 +27,9 @@
             <TabItem Header="Лабораторна 6">
                 <views:Lab6View DataContext="{Binding Lab6ViewModel}"/>
             </TabItem>
+            <TabItem Header="Лабораторна 7">
+                <views:Lab7View DataContext="{Binding Lab7ViewModel}"/>
+            </TabItem>
         </TabControl>
     </Grid>
 </Window>
